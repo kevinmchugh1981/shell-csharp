@@ -32,6 +32,11 @@ class Program
                 case false when
                     input.StartsWith(ChangeDirectoryTitle, StringComparison.InvariantCultureIgnoreCase):
                     var targetDirectory = input.Split(" ")?.Skip(1)?.ToArray()[0] ?? string.Empty;
+                    if (targetDirectory == "~")
+                    {
+                        Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+                        break;
+                    }
                     if (!string.IsNullOrWhiteSpace(targetDirectory) && Directory.Exists(targetDirectory))
                         Directory.SetCurrentDirectory(targetDirectory);
                     else
