@@ -23,7 +23,7 @@ class Program
             {
                 case false when
                     input!.StartsWith(EchoName, StringComparison.InvariantCultureIgnoreCase):
-                    Console.WriteLine(input.Replace($"{EchoName} ", string.Empty));
+                    Console.WriteLine(ParseEcho(input.Replace($"{EchoName} ", string.Empty)));
                     break;
                 case false when
                     input.StartsWith(PwdName, StringComparison.InvariantCultureIgnoreCase):
@@ -63,7 +63,7 @@ class Program
                 }
                 default:
                     if (IsExecutable(input.Split(" ")[0], out var path))
-                        Execute(path, string.Join(" ", input.Split().Skip(1)));
+                        Execute(path, ParseEcho(string.Join(" ", input.Split().Skip(1))));
                     else
                         Console.WriteLine($"{input}: command not found");
                     break;
@@ -139,4 +139,33 @@ class Program
         if (!string.IsNullOrWhiteSpace(error))
             Console.Write(error);
     }
+
+    private static string ParseEcho(string input)
+    {
+        var insideSingleQuote = false;
+        var result = string.Empty;
+        for (int x = 0; x < input.Length; ++x)
+        {
+            if (input[x] == '\'')
+            {
+                insideSingleQuote = !insideSingleQuote;
+                continue;
+            }
+            
+            if(insideSingleQuote)
+                result += input[x];
+            else if (!string.IsNullOrWhiteSpace(result) && char.IsWhiteSpace(result.Last()))
+            {
+                if(!char.IsWhiteSpace(input[x]))
+                    result += input[x];
+            }
+            else
+            {
+                result += input[x];
+            }
+        }
+        
+        return result;
+    }
+    
 }
