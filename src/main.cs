@@ -27,16 +27,22 @@ class Program
                     input.StartsWith(TypeName, StringComparison.InvariantCultureIgnoreCase):
                 {
                     var target = input.Replace($"{TypeName} ", string.Empty);
-                    if (!string.IsNullOrWhiteSpace(target) && BuiltIns.Contains(target))
-                        Console.WriteLine($"{target} is a shell builtin");
-                    else
-                        Console.WriteLine($"{target}: not found");
+                    switch (string.IsNullOrWhiteSpace(target))
+                    {
+                        case false when BuiltIns.Contains(target):
+                            Console.WriteLine($"{target} is a shell builtin");
+                            break;
+                        case false when IsExecutable(target, out var filePath):
+                            Console.WriteLine($"{target} is {filePath}");
+                            break;
+                        default:
+                            Console.WriteLine($"{target}: not found");
+                            break;
+                    }
                     break;
                 }
                 default:
-                    Console.WriteLine(IsExecutable(input, out var path)
-                        ? $"{input} is {path}"
-                        : $"{input}: command not found");
+                    Console.WriteLine( $"{input}: command not found");
                     break;
             }
         }
