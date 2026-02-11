@@ -2,13 +2,14 @@ class Program
 {
     static void Main()
     {
-        string input;
 
-        do
+        while (true)
         {
             Console.Write("$ ");
-            input = Console.ReadLine() ?? string.Empty;
-            Console.WriteLine($"{input}: command not found");
-        } while (!input.Equals("exit", StringComparison.InvariantCultureIgnoreCase));
+            var input = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(input) && input.Equals("exit", StringComparison.InvariantCultureIgnoreCase))
+                return;
+            Console.WriteLine($"{input}: command not found");    
+        }
     }
 }
