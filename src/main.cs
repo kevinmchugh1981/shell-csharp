@@ -44,7 +44,7 @@ class Program
                 }
                 default:
                     if (IsExecutable(input.Split(" ")[0], out var path))
-                        Execute(path, string.Join(string.Empty, input.Split().Skip(1)));
+                        Execute(path, string.Join(" ", input.Split().Skip(1)));
                     else
                         Console.WriteLine($"{input}: command not found");
                     break;
