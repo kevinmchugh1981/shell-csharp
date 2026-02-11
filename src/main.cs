@@ -3,10 +3,11 @@ using System.Runtime.InteropServices;
 
 class Program
 {
-    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName];
+    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName, PwdName];
     private static string ExitName => "exit";
     private static string TypeName => "type";
     private static string EchoName => "echo";
+    private static string PwdName => "pwd";
 
     static void Main()
     {
@@ -22,6 +23,10 @@ class Program
                 case false when
                     input!.StartsWith(EchoName, StringComparison.InvariantCultureIgnoreCase):
                     Console.WriteLine(input.Replace($"{EchoName} ", string.Empty));
+                    break;
+                case false when
+                    input.StartsWith(PwdName, StringComparison.InvariantCultureIgnoreCase):
+                    Console.WriteLine(Directory.GetCurrentDirectory());
                     break;
                 case false when
                     input.StartsWith(TypeName, StringComparison.InvariantCultureIgnoreCase):
