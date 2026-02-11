@@ -48,10 +48,15 @@ class Program
         if (!TryGetDirectories(out var directories))
             return false;
 
-        foreach (var fullPath in directories.Select(directory => Path.Combine(directory.Trim(), name)).Where(IsFileExecutable))
+        foreach (var directory in directories)
         {
-            filePath = fullPath;
-            return true;
+            var fullPath = Path.Combine(directory.Trim(), name);
+
+            if (IsFileExecutable(fullPath))
+            {
+                filePath = fullPath;
+                return true;
+            }
         }
 
         return  false;
