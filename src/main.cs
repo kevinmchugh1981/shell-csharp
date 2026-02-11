@@ -46,9 +46,9 @@ class Program
         filePath = string.Empty;
         
         if (!TryGetDirectories(out var directories))
-            return false;
+            return false;       
 
-        foreach (var directory in directories)
+        foreach (var directory in directories.Where(x=> x.Contains("Windows")))  
         {
             var fullPath = Path.Combine(directory.Trim(), name);
 
@@ -75,8 +75,6 @@ class Program
     
     private static bool IsFileExecutable(string filePath)
     {
-        if (!File.Exists(filePath)) return false;
-
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             var ext = Path.GetExtension(filePath).ToLower();
