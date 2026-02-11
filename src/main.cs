@@ -9,9 +9,11 @@ class Program
             var input = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(input) && input.Equals("exit", StringComparison.InvariantCultureIgnoreCase))
                 return;
-            if(!string.IsNullOrWhiteSpace(input) && input.StartsWith("echo", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(input) &&
+                input.StartsWith("echo", StringComparison.InvariantCultureIgnoreCase))
                 Console.WriteLine(input.Replace("echo ", string.Empty));
-            Console.WriteLine($"{input}: command not found");    
+            else 
+                Console.WriteLine($"{input}: command not found");
         }
     }
 }
