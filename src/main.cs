@@ -1,5 +1,13 @@
+using System.Runtime.InteropServices;
+
 class Program
 {
+
+    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName];
+    private static string ExitName => "exit";
+    private static string TypeName => "type";
+    private static string EchoName => "echo";
+    
     static void Main()
     {
 
@@ -7,24 +15,74 @@ class Program
         {
             Console.Write("$ ");
             var input = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(input) && input.Equals("exit", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(input) && input.Equals(ExitName, StringComparison.InvariantCultureIgnoreCase))
                 return;
-            if (!string.IsNullOrWhiteSpace(input) &&
-                input.StartsWith("echo", StringComparison.InvariantCultureIgnoreCase))
-                Console.WriteLine(input.Replace("echo ", string.Empty));
-            else if (!string.IsNullOrWhiteSpace(input) &&
-                     input.StartsWith("type", StringComparison.InvariantCultureIgnoreCase))
+            switch (string.IsNullOrWhiteSpace(input))
             {
-                var target = input.Replace("type ", string.Empty);
-                if (!string.IsNullOrWhiteSpace(target) && (target.Equals("echo", StringComparison.InvariantCultureIgnoreCase) ||
-                                                           target.Equals("type", StringComparison.InvariantCultureIgnoreCase) ||
-                                                           target.Equals("exit", StringComparison.InvariantCultureIgnoreCase)))
-                    Console.WriteLine($"{target} is a shell builtin");
-                else
-                    Console.WriteLine($"{target}: not found");
+                case false when
+                    input!.StartsWith(EchoName, StringComparison.InvariantCultureIgnoreCase):
+                    Console.WriteLine(input.Replace($"{EchoName} ", string.Empty));
+                    break;
+                case false when
+                    input.StartsWith(TypeName, StringComparison.InvariantCultureIgnoreCase):
+                {
+                    var target = input.Replace($"{TypeName} ", string.Empty);
+                    if (!string.IsNullOrWhiteSpace(target) && BuiltIns.Contains(target))
+                        Console.WriteLine($"{target} is a shell builtin");
+                    else
+                        Console.WriteLine($"{target}: not found");
+                    break;
+                }
+                default:
+                    Console.WriteLine(IsExecutable(input, out var path)
+                        ? $"{input} is {path}"
+                        : $"{input}: command not found");
+                    break;
             }
-            else 
-                Console.WriteLine($"{input}: command not found");
         }
+    }
+    private static bool IsExecutable(string name, out string filePath)
+    {
+        filePath = string.Empty;
+        
+        if (!TryGetDirectories(out var directories))
+            return false;
+
+        foreach (var fullPath in directories.Select(directory => Path.Combine(directory.Trim(), name)).Where(IsFileExecutable))
+        {
+            filePath = fullPath;
+            return true;
+        }
+
+        return  false;
+    }
+
+    private static bool TryGetDirectories(out List<string> directories)
+    {
+        directories = [];
+        var pathEnv = Environment.GetEnvironmentVariable("PATH");
+        if (string.IsNullOrEmpty(pathEnv)) return false;
+        var pathSeparator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ';' : ':';
+
+        directories = pathEnv.Split(pathSeparator).ToList();
+        return directories.Count > 0;
+    }
+    
+    private static bool IsFileExecutable(string filePath)
+    {
+        if (!File.Exists(filePath)) return false;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var ext = Path.GetExtension(filePath).ToLower();
+            string[] executableExts = { ".exe", ".bat", ".cmd", ".ps1" };
+            return executableExts.Contains(ext);
+        }
+
+        var fileInfo = new FileInfo(filePath);
+
+        return (fileInfo.UnixFileMode & (UnixFileMode.UserExecute |
+                                         UnixFileMode.GroupExecute |
+                                         UnixFileMode.OtherExecute)) != 0;
     }
 }
