@@ -2,12 +2,13 @@ class Program
 {
     static void Main()
     {
+        string input;
 
-        while (true)
+        do
         {
             Console.Write("$ ");
-            var input = Console.ReadLine();
-            Console.WriteLine($"{input}: command not found");    
-        }
+            input = Console.ReadLine() ?? string.Empty;
+            Console.WriteLine($"{input}: command not found");
+        } while (!input.Equals("exit", StringComparison.InvariantCultureIgnoreCase));
     }
 }
