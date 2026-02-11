@@ -3,11 +3,12 @@ using System.Runtime.InteropServices;
 
 class Program
 {
-    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName, PwdName];
+    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName, PwdName, ChangeDirectoryTitle];
     private static string ExitName => "exit";
     private static string TypeName => "type";
     private static string EchoName => "echo";
     private static string PwdName => "pwd";
+    private static string ChangeDirectoryTitle => "cd";
 
     static void Main()
     {
@@ -29,19 +30,27 @@ class Program
                     Console.WriteLine(Directory.GetCurrentDirectory());
                     break;
                 case false when
+                    input.StartsWith(ChangeDirectoryTitle, StringComparison.InvariantCultureIgnoreCase):
+                    var targetDirectory = input.Split(" ")?.Skip(1)?.ToArray()[0] ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(targetDirectory) && Directory.Exists(targetDirectory))
+                        Directory.SetCurrentDirectory(targetDirectory);
+                    else
+                        Console.Out.WriteLine($"cd: {targetDirectory}: No such file or directory");
+                    break;
+                case false when
                     input.StartsWith(TypeName, StringComparison.InvariantCultureIgnoreCase):
                 {
-                    var target = input.Replace($"{TypeName} ", string.Empty);
-                    switch (string.IsNullOrWhiteSpace(target))
+                    var targetFile = input.Replace($"{TypeName} ", string.Empty);
+                    switch (string.IsNullOrWhiteSpace(targetFile))
                     {
-                        case false when BuiltIns.Contains(target):
-                            Console.WriteLine($"{target} is a shell builtin");
+                        case false when BuiltIns.Contains(targetFile):
+                            Console.WriteLine($"{targetFile} is a shell builtin");
                             break;
-                        case false when IsExecutable(target, out var filePath):
-                            Console.WriteLine($"{target} is {filePath}");
+                        case false when IsExecutable(targetFile, out var filePath):
+                            Console.WriteLine($"{targetFile} is {filePath}");
                             break;
                         default:
-                            Console.WriteLine($"{target}: not found");
+                            Console.WriteLine($"{targetFile}: not found");
                             break;
                     }
 
