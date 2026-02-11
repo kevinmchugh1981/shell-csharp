@@ -7,7 +7,7 @@ class Program
         {
             Console.Write("$ ");
             var input = Console.ReadLine();
-            Console.Write($"{input}: command not found");    
+            Console.WriteLine($"{input}: command not found");    
         }
     }
 }
