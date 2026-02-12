@@ -3,12 +3,14 @@ using System.Runtime.InteropServices;
 
 class Program
 {
-    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName, PwdName, ChangeDirectoryTitle];
+    private static readonly List<string> BuiltIns = [ExitName, EchoName, TypeName, PwdName, ChangeDirectoryName];
     private static string ExitName => "exit";
     private static string TypeName => "type";
     private static string EchoName => "echo";
     private static string PwdName => "pwd";
-    private static string ChangeDirectoryTitle => "cd";
+    private static string ChangeDirectoryName => "cd";
+    private static string CatName => "cat";
+    
     
     static void Main()
     {
@@ -16,6 +18,7 @@ class Program
         {
             Console.Write("$ ");
             var input = Console.ReadLine();
+            
             if (!string.IsNullOrWhiteSpace(input) &&
                 input.Equals(ExitName, StringComparison.InvariantCultureIgnoreCase))
                 return;
@@ -30,7 +33,7 @@ class Program
                     Console.WriteLine(Directory.GetCurrentDirectory());
                     break;
                 case false when
-                    input.StartsWith(ChangeDirectoryTitle, StringComparison.InvariantCultureIgnoreCase):
+                    input.StartsWith(ChangeDirectoryName, StringComparison.InvariantCultureIgnoreCase):
                     var targetDirectory = input.Split(" ")?.Skip(1)?.ToArray()[0] ?? string.Empty;
                     if (targetDirectory == "~")
                     {
@@ -61,9 +64,15 @@ class Program
 
                     break;
                 }
+                case false when
+                    input.StartsWith(CatName, StringComparison.InvariantCultureIgnoreCase) && IsExecutable(input.Split(" ")[0], out var catPath):
+                {
+                    Execute(catPath, ParseCat(input.Replace(CatName + " ", string.Empty).Trim()));
+                    break;
+                }
                 default:
                     if (IsExecutable(input.Split(" ")[0], out var path))
-                        Execute(path, string.Join(" ", input.Split().Skip(1)));
+                        Execute(path, input.Split().Skip(1).ToList());
                     else
                         Console.WriteLine($"{input}: command not found");
                     break;
@@ -118,19 +127,23 @@ class Program
                                          UnixFileMode.OtherExecute)) != 0;
     }
 
-    private static void Execute(string filePath, string arguments)
+    private static void Execute(string filePath, List<string> arguments)
     {
         var command = Path.GetFileName(filePath);
         var directory = Path.GetDirectoryName(filePath);
 
-        var startInfo = new ProcessStartInfo(command, arguments)
+        var startInfo = new ProcessStartInfo(command)
         {
             WorkingDirectory = directory,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false
         };
-        using var process = System.Diagnostics.Process.Start(startInfo);
+        
+        foreach(var arg in arguments)
+            startInfo.ArgumentList.Add(arg);
+        
+        using var process = Process.Start(startInfo);
         var output = process?.StandardOutput.ReadToEnd();
         var error = process?.StandardError.ReadToEnd();
         process?.WaitForExit();
@@ -167,5 +180,41 @@ class Program
         
         return result;
     }
+    
+    private static List<string> ParseCat(string input)
+    {
+        var insideSingleQuote = false;
+        var result = new List<string>();
+        var currentLine = string.Empty;
+        for (int x = 0; x < input.Length; ++x)
+        {
+            if (input[x] == '\'')
+            {
+                if (insideSingleQuote)
+                {
+                    result.Add(currentLine);
+                    currentLine = string.Empty;
+                }
+                insideSingleQuote = !insideSingleQuote;
+                continue;
+            }
+            
+            if(insideSingleQuote)
+                currentLine += input[x];
+            else if (!string.IsNullOrWhiteSpace(currentLine) && char.IsWhiteSpace(currentLine.Last()))
+            {
+                if(!char.IsWhiteSpace(input[x]))
+                    currentLine += input[x];
+            }
+            else
+            {
+                if(!char.IsWhiteSpace(input[x]))
+                    currentLine += input[x];
+            }
+        }
+        
+        return result;
+    }
+    
     
 }
