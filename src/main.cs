@@ -10,8 +10,8 @@ class Program
     private static string PwdName => "pwd";
     private static string ChangeDirectoryName => "cd";
     private static string CatName => "cat";
-    
-    
+
+
     static void Main()
     {
         while (true)
@@ -19,6 +19,8 @@ class Program
             Console.Write("$ ");
             var input = Console.ReadLine();
             
+            var test = ParseCat(input);
+
             if (!string.IsNullOrWhiteSpace(input) &&
                 input.Equals(ExitName, StringComparison.InvariantCultureIgnoreCase))
                 return;
@@ -40,6 +42,7 @@ class Program
                         Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
                         break;
                     }
+
                     if (!string.IsNullOrWhiteSpace(targetDirectory) && Directory.Exists(targetDirectory))
                         Directory.SetCurrentDirectory(targetDirectory);
                     else
@@ -65,7 +68,8 @@ class Program
                     break;
                 }
                 case false when
-                    input.StartsWith(CatName, StringComparison.InvariantCultureIgnoreCase) && IsExecutable(input.Split(" ")[0], out var catPath):
+                    input.StartsWith(CatName, StringComparison.InvariantCultureIgnoreCase) &&
+                    IsExecutable(input.Split(" ")[0], out var catPath):
                 {
                     Execute(catPath, ParseCat(input.Replace(CatName + " ", string.Empty).Trim()));
                     break;
@@ -139,10 +143,10 @@ class Program
             RedirectStandardOutput = true,
             UseShellExecute = false
         };
-        
-        foreach(var arg in arguments)
+
+        foreach (var arg in arguments)
             startInfo.ArgumentList.Add(arg);
-        
+
         using var process = Process.Start(startInfo);
         var output = process?.StandardOutput.ReadToEnd();
         var error = process?.StandardError.ReadToEnd();
@@ -155,21 +159,27 @@ class Program
 
     private static string ParseEcho(string input)
     {
-        var insideSingleQuote = false;
+        var delimiter = Char.MinValue;
         var result = string.Empty;
         for (int x = 0; x < input.Length; ++x)
         {
-            if (input[x] == '\'')
+            if ((input[x] == '\'' || input[x] == '"') && delimiter == Char.MinValue)
             {
-                insideSingleQuote = !insideSingleQuote;
+                delimiter = input[x];
                 continue;
             }
-            
-            if(insideSingleQuote)
+
+            if (input[x] == delimiter)
+            {
+                delimiter = char.MinValue;
+                continue;
+            }
+
+            if (delimiter != char.MinValue)
                 result += input[x];
             else if (!string.IsNullOrWhiteSpace(result) && char.IsWhiteSpace(result.Last()))
             {
-                if(!char.IsWhiteSpace(input[x]))
+                if (!char.IsWhiteSpace(input[x]))
                     result += input[x];
             }
             else
@@ -177,44 +187,45 @@ class Program
                 result += input[x];
             }
         }
-        
+
         return result;
     }
-    
+
     private static List<string> ParseCat(string input)
     {
-        var insideSingleQuote = false;
+        var delimiter = Char.MinValue;
         var result = new List<string>();
         var currentLine = string.Empty;
         for (int x = 0; x < input.Length; ++x)
         {
-            if (input[x] == '\'')
+            if ((input[x] == '\'' || input[x] == '"') && delimiter == Char.MinValue)
             {
-                if (insideSingleQuote)
-                {
-                    result.Add(currentLine);
-                    currentLine = string.Empty;
-                }
-                insideSingleQuote = !insideSingleQuote;
+                delimiter = input[x];
                 continue;
             }
-            
-            if(insideSingleQuote)
+
+            if (input[x] == delimiter)
+            {
+                result.Add(currentLine);
+                currentLine = string.Empty;
+                delimiter = char.MinValue;
+                continue;
+            }
+
+            if (delimiter != Char.MinValue)
                 currentLine += input[x];
             else if (!string.IsNullOrWhiteSpace(currentLine) && char.IsWhiteSpace(currentLine.Last()))
             {
-                if(!char.IsWhiteSpace(input[x]))
+                if (!char.IsWhiteSpace(input[x]))
                     currentLine += input[x];
             }
             else
             {
-                if(!char.IsWhiteSpace(input[x]))
+                if (!char.IsWhiteSpace(input[x]))
                     currentLine += input[x];
             }
         }
-        
+
         return result;
     }
-    
-    
 }
