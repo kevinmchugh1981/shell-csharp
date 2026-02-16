@@ -19,8 +19,8 @@
                     FileSystem.Execute(catPath, Parsers.Parse(input.Replace(Constants.CatName + " ", string.Empty).Trim()));
                 }
                     break;
-                case false when FileSystem.IsExecutable(input.GetFirstElement(), out var path):
-                    FileSystem.Execute(path, input.Split().Skip(1).ToList());
+                case false when FileSystem.IsExecutable(Parsers.Parse(input).First(), out var path):
+                    FileSystem.Execute(path, Parsers.Parse(input).Skip(1).ToList());
                     break;
                 case false:
                     Console.WriteLine($"{input}: command not found");
