@@ -1,8 +1,8 @@
 ﻿public class Instruction : IInstruction
 {
-    public string Command { get; set; } = string.Empty;
+    public string CommandName { get; set; } = string.Empty;
 
-    public List<string> Args { get; set; } = [];
+    public List<string> Arguments { get; set; } = [];
 
     public string RedirectDestination { get; set; } = string.Empty;
     

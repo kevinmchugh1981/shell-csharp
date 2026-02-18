@@ -12,7 +12,7 @@
 
     private void EchoCommand(Instruction instruction)
     {
-        instruction.WriteLine(string.Join(" ", instruction.Args));
+        instruction.WriteLine(string.Join(" ", instruction.Arguments));
     }
 
     private void PresentWorkingDirectoryCommand(Instruction instruction)
@@ -22,7 +22,7 @@
 
     private void TypeCommand(Instruction instruction)
     {
-        var targetFile = instruction.Args.Count == 0 ? string.Empty: instruction.Args[0];
+        var targetFile = instruction.Arguments.Count == 0 ? string.Empty: instruction.Arguments[0];
         switch (string.IsNullOrWhiteSpace(targetFile))
         {
             case false when Commands.ContainsKey(targetFile):
@@ -39,7 +39,7 @@
     
     private void ChangeDirectoryCommand(Instruction instruction)
     {
-        var targetDirectory = instruction.Args.Count == 0 ? string.Empty : instruction.Args[0];
+        var targetDirectory = instruction.Arguments.Count == 0 ? string.Empty : instruction.Arguments[0];
         if (targetDirectory.Equals(Constants.ChangeDirectorySwitch,  StringComparison.InvariantCultureIgnoreCase))
         {
             Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));

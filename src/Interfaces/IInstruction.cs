@@ -1,8 +1,8 @@
 ﻿public interface IInstruction
 {
-    string Command { get; set; }
+    string CommandName { get; set; }
     
-    List<string> Args { get; set; }
+    List<string> Arguments { get; set; }
     
     string RedirectDestination { get; set; }
 

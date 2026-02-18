@@ -64,7 +64,7 @@ internal class FileSystem : IFileSystem
             UseShellExecute = false
         };
 
-        foreach (var arg in instruction.Args)
+        foreach (var arg in instruction.Arguments)
             startInfo.ArgumentList.Add(arg);
 
         using var process = Process.Start(startInfo);

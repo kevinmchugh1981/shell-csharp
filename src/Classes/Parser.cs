@@ -103,7 +103,7 @@
         return elements.Count switch
         {
             0 => new Instruction(),
-            1 => new Instruction { Command = elements[0] },
+            1 => new Instruction { CommandName = elements[0] },
             _ => Convert(elements)
         };
     }
@@ -113,8 +113,8 @@
         //Create new parsed element.
         var result = new Instruction
         {
-            Args = [],
-            Command = elements[0],
+            Arguments = [],
+            CommandName = elements[0],
             RedirectDestination = string.Empty
         };
 
@@ -139,14 +139,14 @@
                     break;
                 }
                 //otherwise just add the argument and move on.
-                result.Args.Add(arg);
+                result.Arguments.Add(arg);
             }
         }
         //Otherwise just carry on as normal.
         else
         {
             result.RedirectDestination = string.Empty;
-            result.Args = elements.Skip(1).ToList();
+            result.Arguments = elements.Skip(1).ToList();
         }
             
         return result;
