@@ -1,29 +1,23 @@
-﻿public class Bash
+﻿public class Bash(IParser parser, IFileSystem fileSystem, IBuiltins builtins)
 {
+    
     public void Start()
     {
         while (true)
         {
             Console.Write("$ ");
-            var input = Console.ReadLine() ?? string.Empty;
+            var input = parser.ParseAlt(Console.ReadLine() ?? string.Empty);
             
-            switch (string.IsNullOrWhiteSpace(input))
+            switch (string.IsNullOrWhiteSpace(input.Command))
             {
-                case false when BuiltIns.Commands.TryGetValue(input.GetFirstElement(), out var command):
+                case false when builtins.Commands.TryGetValue(input.Command, out var command):
                     command.Invoke(input);
                     break;
-                case false when
-                    input.StartsWith(Constants.CatName, StringComparison.InvariantCultureIgnoreCase) &&
-                    FileSystem.IsExecutable(input.GetFirstElement(), out var catPath):
-                {
-                    FileSystem.Execute(catPath, Parsers.Parse(input.Replace(Constants.CatName + " ", string.Empty).Trim()));
-                }
-                    break;
-                case false when FileSystem.IsExecutable(Parsers.Parse(input).First(), out var path):
-                    FileSystem.Execute(path, Parsers.Parse(input).Skip(1).ToList());
+                case false when fileSystem.IsExecutable(input.Command, out var path):
+                    fileSystem.Execute(path, input);
                     break;
                 case false:
-                    Console.WriteLine($"{input}: command not found");
+                    Console.WriteLine($"{input.Command}: command not found");
                     break;
             }
         }

@@ -1,16 +1,22 @@
-﻿internal static class Parsers
+﻿internal class Parser : IParser
 {
     private static char SingleQuote => '\'';
     private static char DoubleQuote => '"';
     private static char EscapeChar => '\\';
 
+    private static string RedirectToFile => ">";
+    private static string RedirectToFileAlt => "1>";
+    private static List<string> RedirectOperators => [RedirectToFile, RedirectToFileAlt];
     private static List<char> Quotes => [SingleQuote, DoubleQuote];
 
-
-    internal static List<string> Parse(string input)
+    public Instruction ParseAlt(string input)
     {
+        
+        if (string.IsNullOrEmpty(input))
+            return new Instruction();
+        
         var delimiter = Char.MinValue;
-        var result = new List<string>();
+        var elements = new List<string>();
         var currentLine = string.Empty;
         var escapeNextChar = false;
         for (var x = 0; x < input.Length; ++x)
@@ -31,7 +37,7 @@
                 if (!string.IsNullOrWhiteSpace(currentLine) &&
                     (char.IsWhiteSpace(input.NextElement(x)) || input.NextElement(x).Equals(char.MinValue)))
                 {
-                    result.Add(currentLine);
+                    elements.Add(currentLine);
                     currentLine = string.Empty;
                 }
 
@@ -48,7 +54,7 @@
                     (char.IsWhiteSpace(input.NextElement(x)) || input.NextElement(x).Equals(char.MinValue)) &&
                     !string.IsNullOrEmpty(currentLine))
                 {
-                    result.Add(currentLine);
+                    elements.Add(currentLine);
                     currentLine = string.Empty;
                 }
 
@@ -81,20 +87,68 @@
                 //If the char is a whitespace and there is a value in the current line then add it.
                 else if (char.IsWhiteSpace(input[x]) && !string.IsNullOrWhiteSpace(currentLine))
                 {
-                    result.Add(currentLine);
+                    elements.Add(currentLine);
                     currentLine = string.Empty;
                 }
             }
 
             //If you have run out of letters, add it so it's not lost.
             if (input.LastElement(x) && !string.IsNullOrEmpty(currentLine))
-                result.Add(currentLine);
+                elements.Add(currentLine);
             
             //unset escape next char.
             escapeNextChar = false;
         }
 
+        return elements.Count switch
+        {
+            0 => new Instruction(),
+            1 => new Instruction { Command = elements[0] },
+            _ => Convert(elements)
+        };
+    }
+
+    private static Instruction Convert(List<string> elements)
+    {
+        //Create new parsed element.
+        var result = new Instruction
+        {
+            Args = [],
+            Command = elements[0],
+            RedirectDestination = string.Empty
+        };
+
+        //If it contains any redirect operators apply them.
+        if (elements.Any(x => RedirectOperators.Contains(x, StringComparer.InvariantCultureIgnoreCase)))
+        {
+            //Get redirection command and then output destination.
+            var redirectToNextArg = false;
+            foreach (var arg in elements.Skip(1))
+            {
+                //If you find the redirect operater, move onto the next string.
+                if (RedirectOperators.Contains(arg, StringComparer.InvariantCultureIgnoreCase))
+                {
+                    redirectToNextArg = true;
+                    continue;
+                }
+
+                //If you are storing the redirect then, store it and carry on.
+                if (redirectToNextArg)
+                {
+                    result.RedirectDestination = arg;
+                    break;
+                }
+                //otherwise just add the argument and move on.
+                result.Args.Add(arg);
+            }
+        }
+        //Otherwise just carry on as normal.
+        else
+        {
+            result.RedirectDestination = string.Empty;
+            result.Args = elements.Skip(1).ToList();
+        }
+            
         return result;
     }
-    
 }

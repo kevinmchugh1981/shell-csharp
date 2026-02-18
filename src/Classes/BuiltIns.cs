@@ -1,30 +1,35 @@
-﻿internal static class BuiltIns
+﻿internal class BuiltIns(IFileSystem fileSystem) : IBuiltins
 {
-    internal static readonly Dictionary<string, Action<string>> Commands = new(StringComparer.InvariantCultureIgnoreCase)
+    
+    public  Dictionary<string, Action<Instruction>> Commands => new(StringComparer.InvariantCultureIgnoreCase)
     {
         { Constants.ExitName, (_) => Environment.Exit(0) },
         { Constants.EchoName, EchoCommand   },
         { Constants.TypeName, TypeCommand },
-        { Constants.PwdName, (_)=>  Console.WriteLine(Directory.GetCurrentDirectory()) },
+        { Constants.PwdName, PresentWorkingDirectoryCommand   },
         { Constants.ChangeDirectoryName, ChangeDirectoryCommand }
     };
 
-    private static void EchoCommand(string input)
+    private void EchoCommand(Instruction instruction)
     {
-        var text = input.Replace($"{Constants.EchoName} ", string.Empty);
-        Console.WriteLine(string.Join(" ", Parsers.Parse(text)));
+        instruction.WriteLine(string.Join(" ", instruction.Args));
     }
 
-    private static void TypeCommand(string input)
+    private void PresentWorkingDirectoryCommand(Instruction instruction)
     {
-        var targetFile = input.Replace($"{Constants.TypeName} ", string.Empty);
+        instruction.WriteLine(Directory.GetCurrentDirectory());
+    }
+
+    private void TypeCommand(Instruction instruction)
+    {
+        var targetFile = instruction.Args.Count == 0 ? string.Empty: instruction.Args[0];
         switch (string.IsNullOrWhiteSpace(targetFile))
         {
             case false when Commands.ContainsKey(targetFile):
-                Console.WriteLine($"{targetFile} is a shell builtin");
+                instruction.WriteLine($"{targetFile} is a shell builtin");
                 break;
-            case false when FileSystem.IsExecutable(targetFile, out var filePath):
-                Console.WriteLine($"{targetFile} is {filePath}");
+            case false when fileSystem.IsExecutable(targetFile, out var filePath):
+                instruction.WriteLine($"{targetFile} is {filePath}");
                 break;
             default:
                 Console.WriteLine($"{targetFile}: not found");
@@ -32,9 +37,9 @@
         }
     }
     
-    private static void ChangeDirectoryCommand(string input)
+    private void ChangeDirectoryCommand(Instruction instruction)
     {
-        var targetDirectory = input.Split(" ")?.Skip(1)?.ToArray()[0] ?? string.Empty;
+        var targetDirectory = instruction.Args.Count == 0 ? string.Empty : instruction.Args[0];
         if (targetDirectory.Equals(Constants.ChangeDirectorySwitch,  StringComparison.InvariantCultureIgnoreCase))
         {
             Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));

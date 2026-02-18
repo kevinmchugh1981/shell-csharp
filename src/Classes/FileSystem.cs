@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-internal static class FileSystem
+internal class FileSystem : IFileSystem
 {
-    internal static bool IsExecutable(string name, out string filePath)
+    public bool IsExecutable(string name, out string filePath)
     {
         filePath = string.Empty;
 
@@ -21,7 +21,7 @@ internal static class FileSystem
         return false;
     }
 
-    internal static bool TryGetDirectories(out List<string> directories)
+    private bool TryGetDirectories(out List<string> directories)
     {
         directories = [];
         var pathEnv = Environment.GetEnvironmentVariable("PATH");
@@ -32,7 +32,7 @@ internal static class FileSystem
         return directories.Count > 0;
     }
 
-    private static bool IsFileExecutable(string filePath)
+    private bool IsFileExecutable(string filePath)
     {
         if (!File.Exists(filePath))
             return false;
@@ -51,7 +51,7 @@ internal static class FileSystem
                                          UnixFileMode.OtherExecute)) != 0;
     }
 
-    internal static void Execute(string filePath, List<string> arguments)
+    public void Execute(string filePath, IInstruction instruction)
     {
         var command = Path.GetFileName(filePath);
         var directory = Path.GetDirectoryName(filePath);
@@ -64,16 +64,19 @@ internal static class FileSystem
             UseShellExecute = false
         };
 
-        foreach (var arg in arguments)
+        foreach (var arg in instruction.Args)
             startInfo.ArgumentList.Add(arg);
 
         using var process = Process.Start(startInfo);
-        var output = process?.StandardOutput.ReadToEnd();
-        var error = process?.StandardError.ReadToEnd();
+        var outputMessage = process?.StandardOutput.ReadToEnd();
+        var errorMessage = process?.StandardError.ReadToEnd();
         process?.WaitForExit();
-        if (!string.IsNullOrWhiteSpace(output))
-            Console.Write(output);
-        if (!string.IsNullOrWhiteSpace(error))
-            Console.Write(error);
+
+        if (!string.IsNullOrWhiteSpace(outputMessage))
+        {
+            instruction.Write(outputMessage);
+        }
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+            Console.Write(errorMessage);
     }
 }

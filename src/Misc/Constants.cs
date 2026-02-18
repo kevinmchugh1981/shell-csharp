@@ -5,6 +5,6 @@
     internal static string EchoName => "echo";
     internal static string PwdName => "pwd";
     internal static string ChangeDirectoryName => "cd";
-    internal static string CatName => "cat";
     internal static string ChangeDirectorySwitch => "~";
+    
 }
