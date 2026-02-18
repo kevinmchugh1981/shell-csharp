@@ -77,6 +77,6 @@ internal class FileSystem : IFileSystem
             instruction.Write(outputMessage);
         }
         if (!string.IsNullOrWhiteSpace(errorMessage))
-            Console.Write(errorMessage);
+            instruction.WriteError(errorMessage);
     }
 }

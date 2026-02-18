@@ -9,4 +9,8 @@
     void Write(string input);
 
     void WriteLine(string input);
+    
+    void WriteError(string input);
+    
+    void WriteErrorLine(string input);
 }

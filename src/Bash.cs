@@ -17,7 +17,7 @@
                     fileSystem.Execute(path, input);
                     break;
                 case false:
-                    Console.WriteLine($"{input.CommandName}: command not found");
+                    input.WriteErrorLine($"{input.CommandName}: command not found");
                     break;
             }
         }

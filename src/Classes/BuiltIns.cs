@@ -32,7 +32,7 @@
                 instruction.WriteLine($"{targetFile} is {filePath}");
                 break;
             default:
-                Console.WriteLine($"{targetFile}: not found");
+                instruction.WriteErrorLine($"{targetFile}: not found");
                 break;
         }
     }

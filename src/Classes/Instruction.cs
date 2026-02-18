@@ -1,4 +1,10 @@
-﻿public class Instruction : IInstruction
+﻿public enum Redirect
+{
+    Error, Output
+}
+
+
+public class Instruction : IInstruction
 {
     public string CommandName { get; set; } = string.Empty;
 
@@ -6,9 +12,19 @@
 
     public string RedirectDestination { get; set; } = string.Empty;
     
+    public Redirect Redirect { get; set; } = Redirect.Output;
+    
     public void Write(string input)
     {
-        if (!string.IsNullOrEmpty(RedirectDestination))
+        if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Output)
+            WriteToFile(input);
+        else
+            Console.Write(input);
+    }
+
+    public void WriteError(string input)
+    {
+        if(!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Error)
             WriteToFile(input);
         else
             Console.Write(input);
@@ -16,12 +32,20 @@
 
     public void WriteLine(string input)
     {
-        if (!string.IsNullOrEmpty(RedirectDestination))
+        if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Output)
             WriteToFile(input);
         else
             Console.WriteLine(input);
     }
 
+    public void WriteErrorLine(string input)
+    {
+        if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Error)
+            WriteToFile(input);
+        else
+            Console.WriteLine(input);
+    }
+    
     private void WriteToFile(string content)
     {
         if (File.Exists(RedirectDestination))
