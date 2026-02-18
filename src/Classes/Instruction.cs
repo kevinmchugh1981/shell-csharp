@@ -26,6 +26,8 @@
     {
         if (File.Exists(RedirectDestination))
             File.Delete(RedirectDestination);
-        File.WriteAllText(RedirectDestination, content+Environment.NewLine);
+        if(!content.EndsWith(Environment.NewLine))
+            content += Environment.NewLine;
+        File.WriteAllText(RedirectDestination, content);
     }
 }
