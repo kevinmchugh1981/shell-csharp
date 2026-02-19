@@ -1,5 +1,4 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 internal class FileSystem : IFileSystem
@@ -76,7 +75,33 @@ internal class FileSystem : IFileSystem
         {
             instruction.Write(outputMessage);
         }
+
         if (!string.IsNullOrWhiteSpace(errorMessage))
             instruction.WriteError(errorMessage);
+    }
+
+    public bool AutoComplete(string input, out string executableName)
+    {
+        executableName = string.Empty;
+
+        if (!TryGetDirectories(out var directories))
+            return false;
+
+        foreach (var directory in directories)
+        {
+            if(!Directory.Exists(directory))
+                continue;
+            
+            foreach (var file in Directory.GetFiles(directory))
+            {
+                if (Path.GetFileName(file).StartsWith(input, StringComparison.InvariantCultureIgnoreCase) && IsFileExecutable(file))
+                {
+                    executableName = Path.GetFileName(file);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

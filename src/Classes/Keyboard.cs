@@ -1,9 +1,11 @@
 ﻿
 
-public class Keyboard : IKeyboard
+public class Keyboard(IFileSystem fileSystem) : IKeyboard
 {
-    private static string ResetLine => "\r$ {0}";
     
+    private IFileSystem fileSystem = fileSystem;
+    private static string ResetLine => "\r$ {0}";
+
     public string GetInput()
     {
         ConsoleKeyInfo key;
@@ -19,6 +21,10 @@ public class Keyboard : IKeyboard
                     break;
                 case ConsoleKey.Tab when Constants.ExitName.StartsWith(input, StringComparison.InvariantCultureIgnoreCase):
                     input = Constants.ExitName+ " ";
+                    Console.Write(ResetLine, input);
+                    break;
+                case ConsoleKey.Tab when fileSystem.AutoComplete(input, out var name):
+                    input = name + " ";
                     Console.Write(ResetLine, input);
                     break;
                 case ConsoleKey.Tab when !Constants.CommandNames.Any(x=> x.StartsWith(input, StringComparison.InvariantCultureIgnoreCase)):
