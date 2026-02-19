@@ -9,7 +9,8 @@
     private static string RedirectOutputToFile => ">";
     private static string RedirectOutputToFileAlt => "1>";
     private static string RedirectErrorToFile => "2>";
-    private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile, AppendOutputToFile, AppendOutputToFileAlt];
+    private static string AppendErrorToFile => "2>>";
+    private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile, AppendOutputToFile, AppendOutputToFileAlt, AppendErrorToFile];
     private static List<char> Quotes => [SingleQuote, DoubleQuote];
 
     public Instruction ParseAlt(string input)
@@ -136,6 +137,8 @@
                         result.Redirect = Redirect.AppendOutput;
                     else if(arg.Equals(RedirectErrorToFile, StringComparison.InvariantCultureIgnoreCase))
                         result.Redirect = Redirect.Error;
+                    else if(arg.Equals(AppendErrorToFile, StringComparison.InvariantCultureIgnoreCase))
+                        result.Redirect = Redirect.AppendError;
                     redirectToNextArg = true;
                     continue;
                 }
