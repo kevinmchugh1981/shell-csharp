@@ -1,4 +1,4 @@
-﻿public class Bash(IInstructionIParser instructionIParser, IFileSystem fileSystem, IBuiltins builtins)
+﻿public class Bash(IInstructionIParser instructionIParser, IFileSystem fileSystem, IBuiltins builtins, IKeyboard keyboard)
 {
     
     public void Start()
@@ -6,7 +6,7 @@
         while (true)
         {
             Console.Write("$ ");
-            var input = instructionIParser.ParseAlt(Console.ReadLine() ?? string.Empty);
+            var input = instructionIParser.ParseAlt(keyboard.GetInput());
             
             switch (string.IsNullOrWhiteSpace(input.CommandName))
             {
