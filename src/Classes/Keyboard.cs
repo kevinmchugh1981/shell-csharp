@@ -21,6 +21,9 @@ public class Keyboard : IKeyboard
                     input = Constants.ExitName+ " ";
                     Console.Write(ResetLine, input);
                     break;
+                case ConsoleKey.Tab when !Constants.CommandNames.Any(x=> x.StartsWith(input, StringComparison.InvariantCultureIgnoreCase)):
+                    Console.Write('\a');
+                    break;
                 default:
                     input += key.KeyChar;
                     Console.Write(key.KeyChar);

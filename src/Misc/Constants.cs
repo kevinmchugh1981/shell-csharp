@@ -7,4 +7,6 @@
     internal static string ChangeDirectoryName => "cd";
     internal static string ChangeDirectorySwitch => "~";
     
+    internal static string[] CommandNames => [ExitName, TypeName, PwdName, ChangeDirectoryName];
+    
 }
