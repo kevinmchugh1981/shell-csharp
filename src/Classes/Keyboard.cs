@@ -34,16 +34,21 @@
                             Console.Write(ResetLine, input);
                             break;
                         }
-                        if (previousKey.Key == ConsoleKey.Tab && executableNames.Count > 1)
+                        if (executableNames.Count > 1)
                         {
-                            Console.WriteLine();
-                            Console.WriteLine(string.Join("  ", executableNames.OrderBy(x => x)));
+                            if (previousKey.Key == ConsoleKey.Tab)
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine(string.Join("  ", executableNames.OrderBy(x => x)));
+                            }
+                            else
+                                Console.Write('\a');
+  
                             if (fileSystem.GetLongestCommonPrefix(executableNames, out var result))
                                 input = result;
                             Console.Write(ResetLine, input);
                             break;
                         }
-                        Console.Write('\a');
                     }
                     Console.Write('\a');
                     break;
