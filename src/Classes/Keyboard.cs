@@ -2,7 +2,7 @@
 
 public class Keyboard : IKeyboard
 {
-    private static string ResetLine => "\r ${0}";
+    private static string ResetLine => "\r$ {0}";
     
     public string GetInput()
     {
@@ -26,9 +26,6 @@ public class Keyboard : IKeyboard
                 input += key.KeyChar;
                 Console.Write(key.KeyChar);
             }
-               
-            
-            
         } while (key.Key != ConsoleKey.Enter);
         return input;
     }
