@@ -1,4 +1,4 @@
-﻿internal class Parser : IParser
+﻿internal class InstructionIParser : IInstructionIParser
 {
     private static char SingleQuote => '\'';
     private static char DoubleQuote => '"';

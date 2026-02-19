@@ -1,4 +1,4 @@
-﻿public class Bash(IParser parser, IFileSystem fileSystem, IBuiltins builtins)
+﻿public class Bash(IInstructionIParser instructionIParser, IFileSystem fileSystem, IBuiltins builtins)
 {
     
     public void Start()
@@ -6,7 +6,7 @@
         while (true)
         {
             Console.Write("$ ");
-            var input = parser.ParseAlt(Console.ReadLine() ?? string.Empty);
+            var input = instructionIParser.ParseAlt(Console.ReadLine() ?? string.Empty);
             
             switch (string.IsNullOrWhiteSpace(input.CommandName))
             {
