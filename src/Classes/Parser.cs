@@ -4,10 +4,12 @@
     private static char DoubleQuote => '"';
     private static char EscapeChar => '\\';
 
+    private static string AppendOutputToFile => ">>";
+    private static string AppendOutputToFileAlt => "1>>";
     private static string RedirectOutputToFile => ">";
     private static string RedirectOutputToFileAlt => "1>";
     private static string RedirectErrorToFile => "2>";
-    private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile];
+    private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile, AppendOutputToFile, AppendOutputToFileAlt];
     private static List<char> Quotes => [SingleQuote, DoubleQuote];
 
     public Instruction ParseAlt(string input)
@@ -126,10 +128,13 @@
             var redirectToNextArg = false;
             foreach (var arg in elements.Skip(1))
             {
-                //If you find the redirect operater, move onto the next string.
+                //If you find the redirect operator, move onto the next string.
                 if (RedirectOperators.Contains(arg, StringComparer.InvariantCultureIgnoreCase))
                 {
-                    if(arg.Equals(RedirectErrorToFile, StringComparison.InvariantCultureIgnoreCase))
+                    if(arg.Equals(AppendOutputToFile, StringComparison.InvariantCultureIgnoreCase) 
+                       || arg.Equals(AppendOutputToFileAlt, StringComparison.InvariantCultureIgnoreCase))
+                        result.Redirect = Redirect.AppendOutput;
+                    else if(arg.Equals(RedirectErrorToFile, StringComparison.InvariantCultureIgnoreCase))
                         result.Redirect = Redirect.Error;
                     redirectToNextArg = true;
                     continue;

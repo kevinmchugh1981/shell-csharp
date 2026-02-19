@@ -1,6 +1,6 @@
 ﻿public enum Redirect
 {
-    Error, Output
+    Error, Output, AppendOutput
 }
 
 
@@ -29,6 +29,8 @@ public class Instruction : IInstruction
     {
         if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Output)
             WriteToFile(input);
+        else if(!string.IsNullOrWhiteSpace(RedirectDestination) && Redirect == Redirect.AppendOutput)
+            AppendToFile(input);
         else
             Console.Write(input);
     }
@@ -45,6 +47,8 @@ public class Instruction : IInstruction
     {
         if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Output)
             WriteToFile(input);
+        else if(!string.IsNullOrWhiteSpace(RedirectDestination) && Redirect == Redirect.AppendOutput)
+            AppendToFile(input);
         else
             Console.WriteLine(input);
     }
@@ -64,5 +68,10 @@ public class Instruction : IInstruction
         if(!content.EndsWith(Environment.NewLine))
             content += Environment.NewLine;
         File.WriteAllText(RedirectDestination, content);
+    }
+
+    private void AppendToFile(string content)
+    {
+        File.AppendAllText(RedirectDestination, content);
     }
 }
