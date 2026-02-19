@@ -6,11 +6,22 @@
 
 public class Instruction : IInstruction
 {
+    private string redirectDestination = string.Empty;
+    
     public string CommandName { get; set; } = string.Empty;
 
     public List<string> Arguments { get; set; } = [];
 
-    public string RedirectDestination { get; set; } = string.Empty;
+    public string RedirectDestination
+    {
+        get => redirectDestination;
+        set
+        {
+            redirectDestination = value;
+            if(!string.IsNullOrWhiteSpace(redirectDestination) && !File.Exists(redirectDestination))
+                File.Create(redirectDestination).Dispose();
+        }
+    }
     
     public Redirect Redirect { get; set; } = Redirect.Output;
     
