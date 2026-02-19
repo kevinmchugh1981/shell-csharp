@@ -6,6 +6,8 @@ public interface IFileSystem
     
     void Execute(string filePath, IInstruction instruction);
 
-    bool AutoComplete(string input, out string executableName);
+    bool AutoComplete(string input, out List<string> executableName);
+
+    bool GetLongestCommonPrefix(List<string>? matches, out string result);
 
 }

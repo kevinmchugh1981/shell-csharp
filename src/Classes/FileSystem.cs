@@ -80,9 +80,9 @@ internal class FileSystem : IFileSystem
             instruction.WriteError(errorMessage);
     }
 
-    public bool AutoComplete(string input, out string executableName)
+    public bool AutoComplete(string input, out List<string> executableNames)
     {
-        executableName = string.Empty;
+        executableNames = [];
 
         if (!TryGetDirectories(out var directories))
             return false;
@@ -96,12 +96,36 @@ internal class FileSystem : IFileSystem
             {
                 if (Path.GetFileName(file).StartsWith(input, StringComparison.InvariantCultureIgnoreCase) && IsFileExecutable(file))
                 {
-                    executableName = Path.GetFileName(file);
-                    return true;
+                    executableNames.Add(Path.GetFileName(file));
                 }
             }
         }
 
-        return false;
+        return executableNames.Any();
+    }
+    
+    public bool GetLongestCommonPrefix(List<string>? matches, out string result)
+    {
+        result = string.Empty;
+        if (matches == null || matches.Count == 0) return false;
+
+        // Start with the first match as our baseline
+        var prefix = matches[0];
+
+        foreach (var match in matches)
+        {
+            // Use Ordinal comparison for speed and consistency in tests
+            while (!match.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                if (prefix.Length == 0) break;
+                prefix = prefix[..^1];
+            }
+        }
+
+        result = prefix;
+    
+        // Return true if we found ANY commonality, 
+        // even if it's just one character.
+        return !string.IsNullOrEmpty(result);
     }
 }
