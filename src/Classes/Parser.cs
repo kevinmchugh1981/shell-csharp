@@ -6,9 +6,8 @@
 
     private static string RedirectOutputToFile => ">";
     private static string RedirectOutputToFileAlt => "1>";
-    private static string RedirectErrorToFile => ">";
-    private static string RedirectErrorToFileAlt => "2>";
-    private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile, RedirectErrorToFileAlt];
+    private static string RedirectErrorToFile => "2>";
+    private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile];
     private static List<char> Quotes => [SingleQuote, DoubleQuote];
 
     public Instruction ParseAlt(string input)
@@ -130,8 +129,7 @@
                 //If you find the redirect operater, move onto the next string.
                 if (RedirectOperators.Contains(arg, StringComparer.InvariantCultureIgnoreCase))
                 {
-                    if(arg.Equals(RedirectErrorToFile, StringComparison.InvariantCultureIgnoreCase) 
-                       || arg.Equals(RedirectErrorToFile, StringComparison.InvariantCultureIgnoreCase))
+                    if(arg.Equals(RedirectErrorToFile, StringComparison.InvariantCultureIgnoreCase))
                         result.Redirect = Redirect.Error;
                     redirectToNextArg = true;
                     continue;
