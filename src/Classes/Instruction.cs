@@ -72,6 +72,8 @@ public class Instruction : IInstruction
 
     private void AppendToFile(string content)
     {
+        if(!content.EndsWith(Environment.NewLine))
+            content += Environment.NewLine;
         File.AppendAllText(RedirectDestination, content);
     }
 }
