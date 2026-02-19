@@ -11,20 +11,20 @@ public class Keyboard : IKeyboard
         do
         {
             key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Tab && Constants.EchoName.StartsWith(input, StringComparison.InvariantCultureIgnoreCase))
+            switch (key.Key)
             {
-                input = Constants.EchoName+" ";
-                Console.Write(ResetLine, input);
-            }
-            if (key.Key == ConsoleKey.Tab && Constants.ExitName.StartsWith(input, StringComparison.InvariantCultureIgnoreCase))
-            {
-                input = Constants.ExitName;
-                Console.Write(ResetLine, input);
-            }
-            else
-            {
-                input += key.KeyChar;
-                Console.Write(key.KeyChar);
+                case ConsoleKey.Tab when Constants.EchoName.StartsWith(input, StringComparison.InvariantCultureIgnoreCase):
+                    input = Constants.EchoName + " ";
+                    Console.Write(ResetLine, input);
+                    break;
+                case ConsoleKey.Tab when Constants.ExitName.StartsWith(input, StringComparison.InvariantCultureIgnoreCase):
+                    input = Constants.ExitName+ " ";
+                    Console.Write(ResetLine, input);
+                    break;
+                default:
+                    input += key.KeyChar;
+                    Console.Write(key.KeyChar);
+                    break;
             }
         } while (key.Key != ConsoleKey.Enter);
         return input;
