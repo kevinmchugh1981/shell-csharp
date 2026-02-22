@@ -1,4 +1,4 @@
-﻿internal class InstructionIParser : IInstructionIParser
+﻿internal class InstructionParser : IInstructionParser
 {
     private static char SingleQuote => '\'';
     private static char DoubleQuote => '"';
@@ -10,14 +10,15 @@
     private static string RedirectOutputToFileAlt => "1>";
     private static string RedirectErrorToFile => "2>";
     private static string AppendErrorToFile => "2>>";
+    private static string PipeSeparator => "|";
     private static List<string> RedirectOperators => [RedirectOutputToFile, RedirectOutputToFileAlt,  RedirectErrorToFile, AppendOutputToFile, AppendOutputToFileAlt, AppendErrorToFile];
     private static List<char> Quotes => [SingleQuote, DoubleQuote];
-
-    public Instruction ParseAlt(string input)
+    
+    public List<IInstruction> Parse(string input)
     {
         
         if (string.IsNullOrEmpty(input))
-            return new Instruction();
+            return new List<IInstruction>();
         
         var delimiter = Char.MinValue;
         var elements = new List<string>();
@@ -106,13 +107,38 @@
 
         return elements.Count switch
         {
-            0 => new Instruction(),
-            1 => new Instruction { CommandName = elements[0] },
-            _ => Convert(elements)
+            0 => [],
+            1 => [new Instruction { CommandName = elements[0] }],
+            _ => ToInstructions(elements)
         };
     }
 
-    private static Instruction Convert(List<string> elements)
+
+    private static List<IInstruction> ToInstructions(List<string> elements)
+    {
+        //Create an empty list of instructions.
+        var result = new List<IInstruction>();
+        //Create a list to hold the parts of an insturction upto a pipe seperator.
+        var instructionElements = new List<string>();
+        foreach (var element in elements)
+        {
+            //If it's not the pipe, just keeping add the elements.
+            if(element!= PipeSeparator)
+                instructionElements.Add(element);
+            else
+            {
+                //If it is the pipe, build an instruction and clear the elements.
+                result.Add(ToInstruction(instructionElements));
+                instructionElements.Clear();
+            }
+        }
+        //If you get to the end and have elements left, create a final instruction.
+        if(instructionElements.Count != 0)
+            result.Add(ToInstruction(instructionElements));
+        return result;
+    }
+
+    private static IInstruction ToInstruction(List<string> elements)
     {
         //Create new parsed element.
         var result = new Instruction

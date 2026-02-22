@@ -52,21 +52,7 @@ internal class FileSystem : IFileSystem
 
     public void Execute(string filePath, IInstruction instruction)
     {
-        var command = Path.GetFileName(filePath);
-        var directory = Path.GetDirectoryName(filePath);
-
-        var startInfo = new ProcessStartInfo(command)
-        {
-            WorkingDirectory = directory,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false
-        };
-
-        foreach (var arg in instruction.Arguments)
-            startInfo.ArgumentList.Add(arg);
-
-        using var process = Process.Start(startInfo);
+        using var process = Process.Start(instruction.ToStartInfo(filePath));
         var outputMessage = process?.StandardOutput.ReadToEnd();
         var errorMessage = process?.StandardError.ReadToEnd();
         process?.WaitForExit();

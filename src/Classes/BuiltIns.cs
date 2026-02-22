@@ -1,7 +1,7 @@
 ﻿internal class BuiltIns(IFileSystem fileSystem) : IBuiltins
 {
     
-    public  Dictionary<string, Action<Instruction>> Commands => new(StringComparer.InvariantCultureIgnoreCase)
+    public  Dictionary<string, Action<IInstruction>> Commands => new(StringComparer.InvariantCultureIgnoreCase)
     {
         { Constants.ExitName, (_) => Environment.Exit(0) },
         { Constants.EchoName, EchoCommand   },
@@ -10,17 +10,17 @@
         { Constants.ChangeDirectoryName, ChangeDirectoryCommand }
     };
 
-    private void EchoCommand(Instruction instruction)
+    private void EchoCommand(IInstruction instruction)
     {
         instruction.WriteLine(string.Join(" ", instruction.Arguments));
     }
 
-    private void PresentWorkingDirectoryCommand(Instruction instruction)
+    private void PresentWorkingDirectoryCommand(IInstruction instruction)
     {
         instruction.WriteLine(Directory.GetCurrentDirectory());
     }
 
-    private void TypeCommand(Instruction instruction)
+    private void TypeCommand(IInstruction instruction)
     {
         var targetFile = instruction.Arguments.Count == 0 ? string.Empty: instruction.Arguments[0];
         switch (string.IsNullOrWhiteSpace(targetFile))
@@ -37,7 +37,7 @@
         }
     }
     
-    private void ChangeDirectoryCommand(Instruction instruction)
+    private void ChangeDirectoryCommand(IInstruction instruction)
     {
         var targetDirectory = instruction.Arguments.Count == 0 ? string.Empty : instruction.Arguments[0];
         if (targetDirectory.Equals(Constants.ChangeDirectorySwitch,  StringComparison.InvariantCultureIgnoreCase))

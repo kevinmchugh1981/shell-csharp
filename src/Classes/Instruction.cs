@@ -1,4 +1,6 @@
-﻿public enum Redirect
+﻿using System.Diagnostics;
+
+public enum Redirect
 {
     Error, Output, AppendOutput, AppendError
 }
@@ -7,7 +9,8 @@
 public class Instruction : IInstruction
 {
     private string redirectDestination = string.Empty;
-    
+    private IInstruction instructionImplementation;
+
     public string CommandName { get; set; } = string.Empty;
 
     public List<string> Arguments { get; set; } = [];
@@ -64,7 +67,25 @@ public class Instruction : IInstruction
         else
             Console.WriteLine(input);
     }
-    
+
+    public ProcessStartInfo ToStartInfo(string filePath)
+    {
+        var command = Path.GetFileName(filePath);
+        var directory = Path.GetDirectoryName(filePath);
+
+        var startInfo = new ProcessStartInfo(command)
+        {
+            WorkingDirectory = directory,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false
+        };
+
+        foreach (var arg in Arguments)
+            startInfo.ArgumentList.Add(arg);
+        return startInfo;
+    }
+
     private void WriteToFile(string content)
     {
         if (File.Exists(RedirectDestination))

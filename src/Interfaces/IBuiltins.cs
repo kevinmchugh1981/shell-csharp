@@ -1,4 +1,4 @@
 ﻿public interface IBuiltins
 {
-    Dictionary<string, Action<Instruction>> Commands { get; }
+    Dictionary<string, Action<IInstruction>> Commands { get; }
 }

@@ -1,4 +1,6 @@
-﻿public interface IInstruction
+﻿using System.Diagnostics;
+
+public interface IInstruction
 {
     string CommandName { get; set; }
     
@@ -13,4 +15,9 @@
     void WriteError(string input);
     
     void WriteErrorLine(string input);
+    
+    ProcessStartInfo ToStartInfo(string filePath);
+    
+    Redirect Redirect { get; set; }
+    
 }
