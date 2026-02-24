@@ -20,4 +20,12 @@ public interface IInstruction
     
     Redirect Redirect { get; set; }
     
+    TextWriter OutputSink { get; set; }
+    
+    TextWriter ErrorSink { get; set; }
+    
+    TextReader InputSource { get; set; }
+    
+    Process? ActiveProcess { get; set; }
+    
 }

@@ -6,68 +6,32 @@ public enum Redirect
 }
 
 
-public class Instruction : IInstruction
+public class Instruction : IInstruction, IDisposable
 {
-    private string redirectDestination = string.Empty;
-    private IInstruction instructionImplementation;
-
     public string CommandName { get; set; } = string.Empty;
 
     public List<string> Arguments { get; set; } = [];
 
-    public string RedirectDestination
-    {
-        get => redirectDestination;
-        set
-        {
-            redirectDestination = value;
-            if(!string.IsNullOrWhiteSpace(redirectDestination) && !File.Exists(redirectDestination))
-                File.Create(redirectDestination).Dispose();
-        }
-    }
-    
+    public string RedirectDestination { get; set; } = string.Empty;
+
     public Redirect Redirect { get; set; } = Redirect.Output;
     
-    public void Write(string input)
-    {
-        if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Output)
-            WriteToFile(input);
-        else if(!string.IsNullOrWhiteSpace(RedirectDestination) && Redirect == Redirect.AppendOutput)
-            AppendToFile(input);
-        else
-            Console.Write(input);
-    }
-
-    public void WriteError(string input)
-    {
-        if(!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Error)
-            WriteToFile(input);
-        else if(!string.IsNullOrWhiteSpace(RedirectDestination) && Redirect == Redirect.AppendError)
-            AppendToFile(input);
-        else
-            Console.Write(input);
-    }
-
-    public void WriteLine(string input)
-    {
-        if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Output)
-            WriteToFile(input);
-        else if(!string.IsNullOrWhiteSpace(RedirectDestination) && Redirect == Redirect.AppendOutput)
-            AppendToFile(input);
-        else
-            Console.WriteLine(input);
-    }
-
-    public void WriteErrorLine(string input)
-    {
-        if (!string.IsNullOrEmpty(RedirectDestination) && Redirect == Redirect.Error)
-            WriteToFile(input);
-        else if(!string.IsNullOrWhiteSpace(RedirectDestination) && Redirect == Redirect.AppendError)
-            AppendToFile(input);
-        else
-            Console.WriteLine(input);
-    }
-
+    public TextWriter OutputSink { get; set; } = Console.Out;
+    
+    public TextWriter ErrorSink { get; set; } = Console.Error;
+    
+    public TextReader InputSource { get; set; } = Console.In;
+    
+    public void Write(string input)=> OutputSink.Write(input);
+    
+    public void WriteError(string input) => ErrorSink.Write(input);
+    
+    public void WriteLine(string input) =>  OutputSink.WriteLine(input);
+    
+    public void WriteErrorLine(string input) => ErrorSink.WriteLine(input);
+    
+    public Process? ActiveProcess { get; set; }
+    
     public ProcessStartInfo ToStartInfo(string filePath)
     {
         var command = Path.GetFileName(filePath);
@@ -85,20 +49,12 @@ public class Instruction : IInstruction
             startInfo.ArgumentList.Add(arg);
         return startInfo;
     }
-
-    private void WriteToFile(string content)
+    
+    public void Dispose()
     {
-        if (File.Exists(RedirectDestination))
-            File.Delete(RedirectDestination);
-        if(!content.EndsWith(Environment.NewLine))
-            content += Environment.NewLine;
-        File.WriteAllText(RedirectDestination, content);
-    }
-
-    private void AppendToFile(string content)
-    {
-        if(!content.EndsWith(Environment.NewLine))
-            content += Environment.NewLine;
-        File.AppendAllText(RedirectDestination, content);
+        if (OutputSink != Console.Out)
+        {
+            OutputSink.Dispose();
+        }
     }
 }
